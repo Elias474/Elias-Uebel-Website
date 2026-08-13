@@ -133,6 +133,7 @@
 
     body {
       min-height: 100%;
+      overflow: hidden;
       background: #000000;
       background-image:
         radial-gradient(ellipse at 25% 50%, rgba(147, 51, 234, 0.06) 0%, transparent 55%),
@@ -151,7 +152,7 @@
     .hero {
       display: flex;
       align-items: stretch;
-      min-height: 100vh;
+      height: 100vh;
       max-width: 1400px;
       margin: 0 auto;
       padding: 80px 60px;
@@ -167,7 +168,7 @@
     }
 
     .name-block {
-      margin-top: 12vh;
+      margin-top: 6vh;
       margin-bottom: 0;
     }
 
@@ -262,80 +263,254 @@
       flex-shrink: 0;
     }
 
-    /* ── RIGHT PANEL ── */
+    /* ── RIGHT PANEL: TIMELINE ── */
     .right {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #canvas-wrapper {
-      position: relative;
-      width: 500px;
-      height: 500px;
-      cursor: grab;
-    }
-    #canvas-wrapper:active {
-      cursor: grabbing;
-    }
-
-    #three-canvas {
-      display: block;
-      width: 100%;
       height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 26vh;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
     }
 
-    /* CSS2DRenderer will inject a sibling div — style it */
-    #canvas-wrapper > div {
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      pointer-events: none !important;
-      overflow: hidden !important;
+    .right::-webkit-scrollbar {
+      width: 6px;
+    }
+    .right::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .right::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+    .right::-webkit-scrollbar-thumb:hover {
+      background: rgba(167, 139, 250, 0.4);
     }
 
-    /* Node labels (set via JS className) */
-    .node-label {
-      font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    .timeline {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 12vh;
+    }
+
+    .tl-item {
+      position: relative;
+      padding-left: 32px;
+      padding-bottom: 44px;
+    }
+    .tl-item:last-child {
+      padding-bottom: 0;
+    }
+
+    /* vertical connecting line */
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 6px;
+      bottom: -6px;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .tl-item:last-child::before {
+      display: none;
+    }
+
+    .tl-node {
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 0 10px rgba(167, 139, 250, 0.35);
+    }
+
+    .tl-subentry + .tl-subentry {
+      margin-top: 20px;
+    }
+
+    .tl-subentry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .tl-subentry-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      opacity: 0.9;
+    }
+
+    .tl-subentry-dates {
       font-size: 10px;
       font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: #9ca3af;
-      letter-spacing: 0.04em;
+      opacity: 0.6;
       white-space: nowrap;
-      pointer-events: none;
-      user-select: none;
-      transition: color 0.25s ease, opacity 0.25s ease, font-size 0.15s ease;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
-      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
+    .tl-header {
+      all: unset;
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .tl-header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .tl-company {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.005em;
+    }
+
+    .tl-role {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      opacity: 0.75;
+    }
+
+    .tl-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .tl-dates {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      opacity: 0.65;
+      white-space: nowrap;
+    }
+
+    .tl-chevron {
+      width: 14px;
+      height: 14px;
+      color: #9ca3af;
+      opacity: 0.5;
+      transition: transform 0.3s ease, opacity 0.2s ease, color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .tl-header:hover .tl-chevron,
+    .tl-header:focus-visible .tl-chevron {
+      opacity: 1;
+      color: var(--accent);
+    }
+    .tl-header:hover .tl-dates,
+    .tl-header:focus-visible .tl-dates {
+      opacity: 1;
+    }
+
+    .tl-item.open .tl-chevron {
+      transform: rotate(180deg);
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .tl-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s ease;
+    }
+    .tl-item.open > .tl-body {
+      grid-template-rows: 1fr;
+    }
+
+    .tl-body-inner {
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .tl-body ul {
+      list-style: none;
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tl-body li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      opacity: 0.8;
+    }
+
+    .tl-body li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.7;
     }
 
     /* ── RESPONSIVE ── */
 
     /* Tablet */
     @media (max-width: 1023px) and (min-width: 768px) {
-      body { overflow-y: auto; }
+      body { overflow: visible; overflow-y: auto; }
 
       .hero {
         flex-direction: column;
         align-items: center;
+        height: auto;
         padding: 60px 40px 80px;
         gap: 60px;
       }
 
       .left {
         width: 100%;
+        height: auto;
         align-items: flex-start;
       }
 
       .name-block { margin-top: 0; }
       .name { font-size: 72px; }
 
-      .right { width: 100%; }
-
-      #canvas-wrapper {
-        width: 420px;
-        height: 420px;
+      .right {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        padding-top: 0;
       }
 
       .contact { padding-top: 40px; }
@@ -343,11 +518,12 @@
 
     /* Mobile */
     @media (max-width: 767px) {
-      body { overflow-y: auto; }
+      body { overflow: visible; overflow-y: auto; }
 
       .hero {
         flex-direction: column;
         align-items: center;
+        height: auto;
         min-height: unset;
         padding: 0;
         gap: 0;
@@ -356,6 +532,7 @@
       /* First screen: name + contact */
       .left {
         width: 100%;
+        height: auto;
         min-height: 100vh;
         padding: 56px 28px 48px;
         justify-content: flex-start;
@@ -369,20 +546,22 @@
       .contact-label { font-size: 9px; }
       .contact-item  { font-size: 12px; }
 
-      /* Second screen: 3D network */
+      /* Second screen: timeline */
       .right {
         width: 100%;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 24px;
+        height: auto;
+        overflow: visible;
+        display: block;
+        padding: 48px 24px 60px;
       }
 
-      #canvas-wrapper {
-        width: 100%;
-        height: min(80vw, 420px);
+      .timeline {
+        max-width: 100%;
+        padding-bottom: 0;
       }
+
+      .tl-company  { font-size: 15px; }
+      .tl-role     { font-size: 12.5px; }
     }
   </style>
 </head>
@@ -422,26 +601,146 @@
 
     <!-- ── RIGHT ── -->
     <div class="right">
-      <div id="canvas-wrapper">
-        <canvas id="three-canvas"></canvas>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-node"></div>
+          <button class="tl-header" type="button" aria-expanded="false">
+            <div class="tl-header-text">
+              <span class="tl-company">Comena (YC S25)</span>
+              <span class="tl-role">Founder Associate</span>
+            </div>
+            <div class="tl-meta">
+              <span class="tl-dates">Jul 2026 – Present</span>
+              <svg class="tl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </button>
+          <div class="tl-body">
+            <div class="tl-body-inner">
+              <ul>
+                <li>Joined as first sales hire (5th employee) of AI startup automating order entry for industrial distributors</li>
+                <li>Generated over €1M in self-sourced sales pipeline by identifying and qualifying target accounts across the DACH industrial distribution market</li>
+                <li>Built outbound sales function from scratch (cold calling, LinkedIn, email), securing qualified demos with decision-makers at mid-market distributors</li>
+                <li>Worked directly with CEO/Co-founder on go-to-market strategy and ICP refinement</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-node"></div>
+          <button class="tl-header" type="button" aria-expanded="false">
+            <div class="tl-header-text">
+              <span class="tl-company">Liebherr</span>
+              <span class="tl-role">Product Management Intern</span>
+            </div>
+            <div class="tl-meta">
+              <span class="tl-dates">Feb 2026 – Mar 2026</span>
+              <svg class="tl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </button>
+          <div class="tl-body">
+            <div class="tl-body-inner">
+              <ul>
+                <li>Conducted competitive intelligence analysis on crane assistance systems, identifying technological gaps</li>
+                <li>Developed go-to-market recommendations for a new heavy machinery product launch</li>
+                <li>Led market entry analysis for a new regional market, evaluating customer segments and revenue potential</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-node"></div>
+          <button class="tl-header" type="button" aria-expanded="false">
+            <div class="tl-header-text">
+              <span class="tl-company">Steinbach &amp; Vollmann GmbH</span>
+              <span class="tl-role">Working Student &amp; Intern</span>
+            </div>
+            <div class="tl-meta">
+              <span class="tl-dates">2021 – 2025</span>
+              <svg class="tl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </button>
+          <div class="tl-body">
+            <div class="tl-body-inner">
+
+              <div class="tl-subentry">
+                <div class="tl-subentry-header">
+                  <span class="tl-subentry-title">Working Student – Technical Service</span>
+                  <span class="tl-subentry-dates">Mar 2025 – Sep 2025</span>
+                </div>
+                <ul>
+                  <li>Independently serviced high-security locking systems at critical infrastructure sites</li>
+                  <li>Coordinated closely with central authorities for access clearance at security-sensitive sites</li>
+                </ul>
+              </div>
+
+              <div class="tl-subentry">
+                <div class="tl-subentry-header">
+                  <span class="tl-subentry-title">Intern – Product Design &amp; Development</span>
+                  <span class="tl-subentry-dates">Jul 2021</span>
+                </div>
+                <ul>
+                  <li>Gained insight into the design, development, and manufacturing of high-security locking systems</li>
+                  <li>Created CAD models in SolidWorks supporting product design and development</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-node"></div>
+          <button class="tl-header" type="button" aria-expanded="false">
+            <div class="tl-header-text">
+              <span class="tl-company">Knorr-Bremse AG</span>
+              <span class="tl-role">Technical Intern – Prototyping &amp; Manufacturing</span>
+            </div>
+            <div class="tl-meta">
+              <span class="tl-dates">Jan 2025 – Mar 2025</span>
+              <svg class="tl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </button>
+          <div class="tl-body">
+            <div class="tl-body-inner">
+              <ul>
+                <li>Supported prototype development and CNC programming in an industrial R&amp;D environment</li>
+                <li>Gained hands-on experience in CNC machining, milling, welding, and precision metalworking</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-node"></div>
+          <button class="tl-header" type="button" aria-expanded="false">
+            <div class="tl-header-text">
+              <span class="tl-company">EOS GmbH Electro Optical Systems</span>
+              <span class="tl-role">Working Student – Quality Management</span>
+            </div>
+            <div class="tl-meta">
+              <span class="tl-dates">Nov 2024 – Apr 2025</span>
+              <svg class="tl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </button>
+          <div class="tl-body">
+            <div class="tl-body-inner">
+              <ul>
+                <li>Supported process optimization and documentation within quality management</li>
+                <li>Assisted in implementing a production time-tracking system for error and process monitoring</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
   </section>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
-    }
-  }
-  </script>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-
+  <script>
     /* ── Subtitle auto-fit ── */
     function fitSubtitle() {
       const nameEl = document.querySelector('.name');
@@ -460,235 +759,36 @@
       roleEl.style.fontSize = lo + 'px';
       if (uniEl) uniEl.style.fontSize = lo + 'px';
     }
-    window.addEventListener('load', fitSubtitle);
-    window.addEventListener('resize', fitSubtitle);
 
-    /* ── Config ── */
-    const isMobile   = window.innerWidth < 768;
-    const NODE_COUNT = isMobile ? 8 : 12;
-    const FLOAT_AMP  = 4;
-    const FLOAT_SPD  = 0.28;
-    const CAM_R      = 290;
-
-    /* ── Node data ── */
-    const ALL_LABELS = [
-      'Engineering','Product Strategy','Manufacturing','Leadership',
-      'Innovation','Growth','Automation','3D Printing',
-      'R&D','Entrepreneurship','Technical Excellence','Problem Solving',
-    ];
-    const ALL_EDGES = [
-      [0,2],[0,6],[0,7],[0,8],[0,10],
-      [1,3],[1,4],[1,5],[1,9],
-      [2,6],[2,7],[3,5],[3,9],
-      [4,8],[4,9],[4,10],[4,11],
-      [5,9],[6,8],[7,8],[8,10],[10,11],
-    ];
-    const labels = ALL_LABELS.slice(0, NODE_COUNT);
-    const edges  = ALL_EDGES.filter(([a,b]) => a < NODE_COUNT && b < NODE_COUNT);
-
-    /* ── Scene ── */
-    const wrapper = document.getElementById('canvas-wrapper');
-    const canvas  = document.getElementById('three-canvas');
-    const scene   = new THREE.Scene();
-    const camera  = new THREE.PerspectiveCamera(52, 1, 0.1, 2000);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-
-    const labelRenderer = new CSS2DRenderer();
-    labelRenderer.domElement.style.position = 'absolute';
-    labelRenderer.domElement.style.top = '0';
-    labelRenderer.domElement.style.left = '0';
-    labelRenderer.domElement.style.pointerEvents = 'none';
-    labelRenderer.domElement.style.overflow = 'hidden';
-    wrapper.appendChild(labelRenderer.domElement);
-
-    /* ── Lighting ── */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const kl = new THREE.PointLight(0xffffff, 8, 700);
-    kl.position.set(150, 100, 180);
-    scene.add(kl);
-    const pl = new THREE.PointLight(0xa78bfa, 3, 400);
-    pl.position.set(-80, -40, 80);
-    scene.add(pl);
-
-    /* ── Node positions ── */
-    function goldenSphere(n, rMin, rMax) {
-      const phi = Math.PI * (3 - Math.sqrt(5));
-      return Array.from({ length: n }, (_, i) => {
-        const y = 1 - (i / (n - 1)) * 2;
-        const r = Math.sqrt(1 - y * y);
-        const t = phi * i;
-        const d = rMin + (((i * 7) % 13) / 13) * (rMax - rMin);
-        return new THREE.Vector3(Math.cos(t) * r * d, y * d, Math.sin(t) * r * d);
-      });
-    }
-    const basePositions = goldenSphere(NODE_COUNT, 72, 118);
-
-    /* ── Nodes ── */
-    const PALETTE    = [0xa78bfa, 0x9333ea];
-    const nodeMeshes = [];
-    const labelDivs  = [];
-    const nodePhases = [];
-    const nodeRadius = isMobile ? 6 : 8;
-
-    labels.forEach((label, i) => {
-      const color = new THREE.Color(PALETTE[i % 2]);
-      const mat = new THREE.MeshStandardMaterial({
-        color, emissive: color, emissiveIntensity: 0.35,
-        roughness: 0.3, metalness: 0.2,
-      });
-      const mesh = new THREE.Mesh(new THREE.SphereGeometry(nodeRadius, 32, 32), mat);
-      mesh.position.copy(basePositions[i]);
-      mesh.userData.index = i;
-      mesh.userData.basePosition = basePositions[i].clone();
-      scene.add(mesh);
-      nodeMeshes.push(mesh);
-      nodePhases.push(Math.PI * 2 * (i / NODE_COUNT) + i * 0.73);
-
-      const div = document.createElement('div');
-      div.className = 'node-label';
-      div.textContent = label;
-      const lobj = new CSS2DObject(div);
-      lobj.position.set(0, nodeRadius + 6, 0);
-      mesh.add(lobj);
-      labelDivs.push(div);
-    });
-
-    /* ── Connection lines ── */
-    const linePos  = new Float32Array(edges.length * 6);
-    const lineGeo  = new THREE.BufferGeometry();
-    const linePosA = new THREE.BufferAttribute(linePos, 3);
-    lineGeo.setAttribute('position', linePosA);
-    const edgeCol  = new Float32Array(edges.length * 6);
-    const colAttr  = new THREE.BufferAttribute(edgeCol, 3);
-    lineGeo.setAttribute('color', colAttr);
-    const lineMat  = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 });
-    scene.add(new THREE.LineSegments(lineGeo, lineMat));
-    const COL_DIM  = new THREE.Color(0xa78bfa).multiplyScalar(0.45);
-    const COL_HIGH = new THREE.Color(0xa78bfa);
-
-    /* ── Adjacency ── */
-    const adjacency = Array.from({ length: NODE_COUNT }, () => new Set());
-    edges.forEach(([a,b]) => { adjacency[a].add(b); adjacency[b].add(a); });
-
-    /* ── Camera fixed, scene rotates via quaternion ── */
-    const sceneQuat = new THREE.Quaternion();
-    const _qTmp     = new THREE.Quaternion();
-    const _axX      = new THREE.Vector3(1, 0, 0);
-    const _axY      = new THREE.Vector3(0, 1, 0);
-    camera.position.set(0, 0, CAM_R);
-    camera.lookAt(0, 0, 0);
-
-    /* ── Drag: rotate scene in screen-space (no limits, no gimbal lock) ── */
-    let dragging = false;
-    let lastX = 0, lastY = 0;
-    const SENS = 0.005;
-
-    function applyOrbit(dx, dy) {
-      // Camera is fixed → screen X = world X, screen Y = world Y, always
-      _qTmp.setFromAxisAngle(_axY,  dx * SENS); sceneQuat.premultiply(_qTmp);
-      _qTmp.setFromAxisAngle(_axX,  dy * SENS); sceneQuat.premultiply(_qTmp);
-      scene.quaternion.copy(sceneQuat);
-    }
-
-    wrapper.addEventListener('mousedown', e => {
-      dragging = true; lastX = e.clientX; lastY = e.clientY;
-    });
-    window.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      applyOrbit(e.clientX - lastX, e.clientY - lastY);
-      lastX = e.clientX; lastY = e.clientY;
-    });
-    window.addEventListener('mouseup',    () => { dragging = false; });
-    window.addEventListener('mouseleave', () => { dragging = false; });
-
-    wrapper.addEventListener('touchstart', e => {
-      dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    }, { passive: true });
-    window.addEventListener('touchmove', e => {
-      if (!dragging) return;
-      applyOrbit(e.touches[0].clientX - lastX, e.touches[0].clientY - lastY);
-      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    }, { passive: true });
-    window.addEventListener('touchend', () => { dragging = false; });
-
-    /* ── Hover / raycaster ── */
-    const raycaster = new THREE.Raycaster();
-    const mouse     = new THREE.Vector2(-9999, -9999);
-    wrapper.addEventListener('mousemove', e => {
-      const r = wrapper.getBoundingClientRect();
-      mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
-      mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
-    });
-    wrapper.addEventListener('mouseleave', () => mouse.set(-9999, -9999));
-
-    /* ── Resize ── */
-    function resize() {
-      const w = wrapper.clientWidth, h = wrapper.clientHeight;
-      renderer.setSize(w, h, false);
-      labelRenderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    new ResizeObserver(resize).observe(wrapper);
-    resize();
-
-    /* ── Animate ── */
-    let t = 0;
-    function animate() {
-      requestAnimationFrame(animate);
-      t += 1 / 60;
-
-      if (!dragging) {
-        // Auto-rotate scene around Y + gentle vertical wander
-        _qTmp.setFromAxisAngle(_axY, 0.0023);
-        sceneQuat.premultiply(_qTmp);
-        _qTmp.setFromAxisAngle(_axX, Math.sin(t * 0.08) * 0.003 + Math.sin(t * 0.051) * 0.002);
-        sceneQuat.premultiply(_qTmp);
-        scene.quaternion.copy(sceneQuat);
+    /* ── Align first timeline entry with the role line ── */
+    function alignTimeline() {
+      const roleEl  = document.querySelector('.role');
+      const rightEl = document.querySelector('.right');
+      if (!roleEl || !rightEl) return;
+      if (window.innerWidth < 1024) {
+        rightEl.style.paddingTop = '';
+        return;
       }
-
-      raycaster.setFromCamera(mouse, camera);
-      const hits     = raycaster.intersectObjects(nodeMeshes);
-      const newHover = hits.length ? hits[0].object.userData.index : -1;
-      const anyHover = newHover >= 0;
-
-      nodeMeshes.forEach((mesh, i) => {
-        const base = mesh.userData.basePosition, ph = nodePhases[i];
-        mesh.position.x = base.x + Math.sin(t * FLOAT_SPD       + ph) * FLOAT_AMP;
-        mesh.position.y = base.y + Math.cos(t * FLOAT_SPD * 1.3 + ph * 1.1) * FLOAT_AMP;
-        mesh.position.z = base.z + Math.sin(t * FLOAT_SPD * 0.9 + ph * 0.7) * FLOAT_AMP;
-
-        const isH = i === newHover;
-        const isN = anyHover && adjacency[newHover].has(i);
-        const isD = anyHover && !isH && !isN;
-        const tEmit = isH ? 1.0 : isN ? 0.6 : isD ? 0.1 : 0.35;
-        mesh.material.emissiveIntensity += (tEmit - mesh.material.emissiveIntensity) * 0.12;
-
-        const div = labelDivs[i];
-        if (isH)      { div.style.color = '#c4b5fd'; div.style.opacity = '1';    div.style.fontSize = '11px'; }
-        else if (isN) { div.style.color = '#d1d5db'; div.style.opacity = '0.85'; div.style.fontSize = '10px'; }
-        else if (isD) { div.style.color = '#9ca3af'; div.style.opacity = '0.12'; div.style.fontSize = '10px'; }
-        else          { div.style.color = '#9ca3af'; div.style.opacity = '0.55'; div.style.fontSize = '10px'; }
-      });
-
-      edges.forEach(([a,b], i) => {
-        const pa = nodeMeshes[a].position, pb = nodeMeshes[b].position, o = i * 6;
-        linePos[o]   = pa.x; linePos[o+1] = pa.y; linePos[o+2] = pa.z;
-        linePos[o+3] = pb.x; linePos[o+4] = pb.y; linePos[o+5] = pb.z;
-        const c = (anyHover && (a===newHover||b===newHover)) ? COL_HIGH : COL_DIM;
-        edgeCol[o]=c.r; edgeCol[o+1]=c.g; edgeCol[o+2]=c.b;
-        edgeCol[o+3]=c.r; edgeCol[o+4]=c.g; edgeCol[o+5]=c.b;
-      });
-      linePosA.needsUpdate = true;
-      colAttr.needsUpdate  = true;
-
-      renderer.render(scene, camera);
-      labelRenderer.render(scene, camera);
+      const roleTop  = roleEl.getBoundingClientRect().top;
+      const rightTop = rightEl.getBoundingClientRect().top;
+      rightEl.style.paddingTop = (roleTop - rightTop) + 'px';
     }
-    animate();
+
+    function syncLayout() {
+      fitSubtitle();
+      alignTimeline();
+    }
+    window.addEventListener('load', syncLayout);
+    window.addEventListener('resize', syncLayout);
+
+    /* ── Timeline accordion ── */
+    document.querySelectorAll('.tl-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const item = header.closest('.tl-item');
+        const isOpen = item.classList.toggle('open');
+        header.setAttribute('aria-expanded', String(isOpen));
+      });
+    });
   </script>
 </body>
 </html>
