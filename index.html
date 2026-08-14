@@ -146,16 +146,6 @@
       to { opacity: 1; }
     }
 
-    /* ── DOT GRID BACKGROUND ── */
-    #dot-grid {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
     /* ── HERO LAYOUT ── */
     .hero {
       position: relative;
@@ -576,8 +566,6 @@
   </style>
 </head>
 <body>
-  <canvas id="dot-grid"></canvas>
-
   <section class="hero">
 
     <!-- ── LEFT ── -->
@@ -799,109 +787,8 @@
         const item = header.closest('.tl-item');
         const isOpen = item.classList.toggle('open');
         header.setAttribute('aria-expanded', String(isOpen));
-        requestAnimationFrame(measureContentRects);
       });
     });
-
-    /* ── Dot grid background ── */
-    const dotCanvas = document.getElementById('dot-grid');
-    const dotCtx    = dotCanvas.getContext('2d');
-
-    const SPACING     = 32;   // px between dots
-    const DOT_RADIUS   = 1.2;
-    const BASE_ALPHA    = 0;
-    const GLOW_ALPHA    = 0.5;
-    const GLOW_RADIUS   = 170;  // px, mouse influence radius
-    const FADE_PAD      = 20;   // px padding around content before it starts fading dots
-    const FADE_FEATHER  = 70;   // px over which the fade ramps back in
-    const EXCLUDE_CONTENT = false;  // toggle: true = fade dots out behind text, false = dots everywhere
-
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let cw = 0, ch = 0;
-    let dots = [];
-    let contentRects = [];
-    let mouse = { x: -9999, y: -9999 };
-
-    function resizeCanvas() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      cw = window.innerWidth;
-      ch = window.innerHeight;
-      dotCanvas.width  = cw * dpr;
-      dotCanvas.height = ch * dpr;
-      dotCanvas.style.width  = cw + 'px';
-      dotCanvas.style.height = ch + 'px';
-      dotCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      dots = [];
-      for (let y = SPACING / 2; y < ch; y += SPACING) {
-        for (let x = SPACING / 2; x < cw; x += SPACING) {
-          dots.push({ x, y });
-        }
-      }
-    }
-
-    function measureContentRects() {
-      const selectors = ['.name-block', '.contact', '.timeline'];
-      contentRects = selectors
-        .map(sel => document.querySelector(sel))
-        .filter(Boolean)
-        .map(el => el.getBoundingClientRect());
-    }
-
-    function contentFadeFor(x, y) {
-      if (!EXCLUDE_CONTENT) return 1;
-      let fade = 1;
-      for (const r of contentRects) {
-        const dx = Math.max(r.left - FADE_PAD - x, 0, x - (r.right + FADE_PAD));
-        const dy = Math.max(r.top - FADE_PAD - y, 0, y - (r.bottom + FADE_PAD));
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const localFade = Math.min(dist / FADE_FEATHER, 1);
-        fade = Math.min(fade, localFade);
-      }
-      return fade;
-    }
-
-    function drawDots() {
-      dotCtx.clearRect(0, 0, cw, ch);
-      for (const d of dots) {
-        const mdx = d.x - mouse.x, mdy = d.y - mouse.y;
-        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-        const glow = Math.max(1 - mdist / GLOW_RADIUS, 0);
-        const fade = contentFadeFor(d.x, d.y);
-        const alpha = (BASE_ALPHA + glow * glow * GLOW_ALPHA) * fade;
-        if (alpha <= 0.003) continue;
-        dotCtx.beginPath();
-        dotCtx.arc(d.x, d.y, DOT_RADIUS, 0, Math.PI * 2);
-        dotCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-        dotCtx.fill();
-      }
-      requestAnimationFrame(drawDots);
-    }
-
-    window.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-    window.addEventListener('mouseleave', () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
-    window.addEventListener('touchmove', e => {
-      if (e.touches[0]) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    function initDotGrid() {
-      resizeCanvas();
-      measureContentRects();
-      drawDots();
-    }
-    window.addEventListener('load', initDotGrid);
-    window.addEventListener('resize', () => { resizeCanvas(); measureContentRects(); });
-    window.addEventListener('scroll', measureContentRects, { passive: true });
-    document.querySelector('.right')?.addEventListener('scroll', measureContentRects, { passive: true });
   </script>
 </body>
 </html>
