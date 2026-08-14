@@ -814,6 +814,7 @@
     const GLOW_RADIUS   = 170;  // px, mouse influence radius
     const FADE_PAD      = 20;   // px padding around content before it starts fading dots
     const FADE_FEATHER  = 70;   // px over which the fade ramps back in
+    const EXCLUDE_CONTENT = false;  // toggle: true = fade dots out behind text, false = dots everywhere
 
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let cw = 0, ch = 0;
@@ -848,6 +849,7 @@
     }
 
     function contentFadeFor(x, y) {
+      if (!EXCLUDE_CONTENT) return 1;
       let fade = 1;
       for (const r of contentRects) {
         const dx = Math.max(r.left - FADE_PAD - x, 0, x - (r.right + FADE_PAD));
